@@ -3,7 +3,8 @@
   "description": "A little Material Design page indicator",
   "main": "paper-pager.html",
   "dependencies": {
-    "polymer": "Polymer/polymer#1.7.0"
+    "polymer": "Polymer/polymer#1.7.0",
+    "iron-selector": "PolymerElements/iron-selector#^1.5.2"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
