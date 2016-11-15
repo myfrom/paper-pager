@@ -3,7 +3,8 @@
 
 # paper-pager
 
-TODO: Write a project description
+`paper-pager` is a Material Design page indicator that adapts to provided variables
+and sets `selected` as user clicks on it.
 
 ## Installation
 
@@ -26,7 +27,8 @@ Import the element and then just use it as normal element.
 ```
 -->
 ```
-<paper-pager></paper-pager>
+<paper-pager dark></paper-pager>
+<!-- `dark` attribute is only for visibility on white background -->
 ```
 
 ## Contributing
