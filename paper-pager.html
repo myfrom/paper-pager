@@ -3,8 +3,23 @@
 <link rel="import" href="../iron-selector/iron-selector.html">
 
 <!--
-`paper-pager`
-A little Material Design page indicator
+`paper-pager` is a Material Design page indicator that adapts to provided variables
+and sets `selected` as user clicks on it. It doesn't require any variable but
+it's higly recommended to provide `itemsCount` (as number) or `items` (as array).
+
+Example:
+
+    <paper-pager items-count="3" selected="{{selected}}></paper-pager>
+
+### Styling
+
+The following custom properties and mixins are available for styling:
+
+Custom property | Description | Default
+----------------|-------------|----------
+`--paper-pager-color` | Color of dots | `white`
+`--paper-pager-opacity` | Opacity of not selected dots | `0.7`
+If you quickly need to switch to dark theme you can use `dark` attribute.
 
 @demo demo/index.html 
 -->
@@ -65,17 +80,26 @@ A little Material Design page indicator
       is: 'paper-pager',
       
       properties: {
-        
+        /**
+         * Number of items. If you set this leave items empty.
+         */
         itemsCount: {
           type: Number,
           value: 3,
           observer: '_computeItems'
         },
         
+        /**
+         * Takes an array which length will be set as itemsCount. If you set this
+         * leave itemsCount empty.
+         */
         items: {
           type: Array
         },
         
+        /**
+         * Currently selected item's index.
+         */
         selected: {
           type: Number,
           notify: true,
@@ -84,6 +108,9 @@ A little Material Design page indicator
           observer: '_selectedChanged'
         },
         
+        /**
+         * Quickly switch to dark theme.
+         */
         dark: {
           type: Boolean,
           value: false,
@@ -92,8 +119,12 @@ A little Material Design page indicator
         
       },
       
-      listeners: {
-        'dom-change': '_domRendered'
+      attached: function() {
+        if (this.selected == 0) {
+          this._selectedChanged(this.selected, 2);
+        } else {
+          this._selectedChanged(this.selected, 0);
+        }
       },
       
       _onTap: function(e) {
@@ -102,14 +133,6 @@ A little Material Design page indicator
       
       _computeItems: function(count) {
         this.items = new Array(count);
-      },
-      
-      _domRendered: function() {
-        if (this.selected == 0) {
-          this._selectedChanged(this.selected, 2);
-        } else {
-          this._selectedChanged(this.selected, 0);
-        }
       },
       
       _selectedChanged: function(selected, lastSelected) {
