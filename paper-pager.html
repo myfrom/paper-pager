@@ -52,11 +52,11 @@ A little Material Design page indicator
       }
     </style>
     <iron-selector selected="[[selected]]">
-      <!--<dom-repeat items="[[items]]">-->
+      <dom-repeat items="[[items]]">
         <template is="dom-repeat" items="[[items]]">
           <div index="[[index]]" on-tap="_onTap"></div> 
         </template>
-      <!--</dom-repeat>-->
+      </dom-repeat>
     </iron-selector>
     <div class="dot"></div>
   </template>
@@ -105,7 +105,7 @@ A little Material Design page indicator
       },
       
       _domRendered: function() {
-        if(this.selected == 0) {
+        if (this.selected == 0) {
           this._selectedChanged(this.selected, 2);
         } else {
           this._selectedChanged(this.selected, 0);
@@ -113,31 +113,49 @@ A little Material Design page indicator
       },
       
       _selectedChanged: function(selected, lastSelected) {
+        if(selected === undefined || lastSelected === undefined) return;
         var dot = this.$$('.dot').style;
-        if(this.items.length && selected != lastSelected) {
+        if (this.items.length && selected != lastSelected) {
           dot.display = 'block';
           var selectedN = selected + 1;
           var lastSelectedN = lastSelected ? lastSelected + 1 : 1;
           var selectedItem = this.$$('div:nth-child(' + selectedN + ')');
           var lastSelectedItem = this.$$('div:nth-child(' + lastSelectedN + ')');
+          if(!selectedItem || !lastSelectedItem) return;
           var lastSelRect = lastSelectedItem.getBoundingClientRect();
           var selectedRect = selectedItem.getBoundingClientRect();
+          var elRect = this.getBoundingClientRect();
+          selectedRect = this._processRelativeRect(selectedRect, elRect);
+          lastSelRect = this._processRelativeRect(lastSelRect, elRect);
           dot.top = lastSelRect.top + 'px';
           dot.bottom = lastSelRect.bottom + 'px';
           dot.left = lastSelRect.left + 'px';
           dot.right = lastSelRect.right + 'px';
-          if(lastSelected > selected) {
+          if (lastSelected > selected) {
             dot.left = selectedRect.left + 'px';
-            dot.right = selectedRect.right + 'px';
+            dot.right = lastSelRect.right + 'px';
           } else {
             dot.left = lastSelRect.left + 'px';
-            dot.right = lastSelRect.right + 'px';
+            dot.right = selectedRect.right + 'px';
           }
-          this.async(function() {
+          setTimeout(function() {
             dot.left = selectedRect.left + 'px';
             dot.right = selectedRect.right + 'px';
-          }.bind(this), 400);
+          }, 400);
         }
+      },
+      
+      _processRelativeRect: function(element, parent) {
+        var output = {
+          height: element.height,
+          width: element.width,
+          top: element.top - parent.top,
+          right: Math.abs(element.right - parent.right),
+          bottom: Math.abs(element.bottom - parent.bottom),
+          left: element.left - parent.left
+        };
+        
+        return output;
       },
       
       _updateStyles: function() {
