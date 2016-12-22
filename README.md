@@ -45,10 +45,6 @@ Made by me, inspired by Google's Material Design page indicator that can be seen
 Other resources:
 - http://stackoverflow.com/questions/26423335
 
-## Coming soon
-- Accesybility
-- Automated tests (They're a bit broken now...)
-
 ## License
 
 Shared on MIT license, check LICENSE
