@@ -1,7 +1,24 @@
 {
   "name": "paper-pager",
+  "version": "0.1.0",
   "description": "A little Material Design page indicator",
-  "main": "paper-pager.html",
+  "authors": [
+    "Witus13"
+  ],
+  "keywords": [
+    "web-components",
+    "polymer",
+    "paper",
+    "pager"
+  ],
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Witus13/paper-pager"
+  },
+  "license": "https://raw.githubusercontent.com/Witus13/paper-pager/master/LICENSE",
+  "homepage": "https://github.com/Witus13/paper-pager",
+  "ignore": [],
   "dependencies": {
     "polymer": "Polymer/polymer#1.7.0",
     "iron-selector": "PolymerElements/iron-selector#^1.5.2"
@@ -11,5 +28,6 @@
     "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
     "web-component-tester": "^4.0.0",
     "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
-  }
+  },
+  "main": "paper-pager.html"
 }
