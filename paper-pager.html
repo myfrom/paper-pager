@@ -6,184 +6,208 @@
 `paper-pager` is a Material Design page indicator that adapts to provided variables
 and sets `selected` as user clicks on it. It doesn't require any variable but
 it's higly recommended to provide `itemsCount` (as number) or `items` (as array).
-
 Example:
-
     <paper-pager items-count="3" selected="{{selected}}"></paper-pager>
-
 ### Styling
-
 The following custom properties and mixins are available for styling:
-
 Custom property | Description | Default
 ----------------|-------------|----------
 `--paper-pager-color` | Color of dots | `white`
 `--paper-pager-opacity` | Opacity of not selected dots | `0.7`
 If you quickly need to switch to dark theme you can use `dark` attribute.
-
-@demo demo/index.html 
+@demo demo/index.html
 -->
 
 <dom-module id="paper-pager">
-  <template>
-    <style>
-      :host {
-        margin: 5px;
-        position: relative;
-      }
-      
-      :host([dark]) {
-        --paper-pager-color: black;
-      }
-      
-      iron-selector {
-        /* From https://github.com/PolymerElements/iron-flex-layout */
-        display: -ms-inline-flexbox;
-        display: -webkit-inline-flex;
-        display: inline-flex;
-      }
-      
-      iron-selector div {
-        margin: 5px;
-        border-radius: 5px;
-        width: 10px;
-        height: 10px;
-        display: inline-block;
-        background-color: var(--paper-pager-color, white);
-        opacity: var(--paper-pager-opacity, 0.7);
-      }
-      
-      .dot {
-        will-change: transform;
-        display: none;
-        position: absolute;
-        border-radius: 5px;
-        background-color: var(--paper-pager-color, white);
-        transition: all 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
-      
-      div {
-        transition: background-color 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
-    </style>
-    <iron-selector selected="[[selected]]">
-      <dom-repeat items="[[items]]">
-        <template is="dom-repeat" items="[[items]]">
-          <div index="[[index]]" on-tap="_onTap"></div> 
-        </template>
-      </dom-repeat>
-    </iron-selector>
-    <div class="dot"></div>
-  </template>
-  <script>
-    Polymer({
-      is: 'paper-pager',
-      
-      properties: {
-        /**
-         * Number of items. If you set this leave items empty.
-         */
-        itemsCount: {
-          type: Number,
-          value: 3,
-          observer: '_computeItems'
-        },
-        
-        /**
-         * Takes an array which length will be set as itemsCount. If you set this
-         * leave itemsCount empty.
-         */
-        items: {
-          type: Array
-        },
-        
-        /**
-         * Currently selected item's index.
-         */
-        selected: {
-          type: Number,
-          notify: true,
-          reflectToAttribute: true,
-          value: 0,
-          observer: '_selectedChanged'
-        },
-        
-        /**
-         * Quickly switch to dark theme.
-         */
-        dark: {
-          type: Boolean,
-          value: false,
-          observer: '_updateStyles'
+    <template>
+        <style>
+            :host {
+                margin: 5px;
+                position: relative;
+            }
+
+            :host([dark]) {
+                --paper-pager-color: black;
+            }
+
+            iron-selector {
+                /* From https://github.com/PolymerElements/iron-flex-layout */
+                display: -ms-inline-flexbox;
+                display: -webkit-inline-flex;
+                display: inline-flex;
+            }
+
+            iron-selector div {
+                margin: var(--paper-pager-margin, 8px);
+                border-radius: 5px;
+                width: 10px;
+                height: 10px;
+                display: inline-block;
+                background-color: var(--paper-pager-color, white);
+                opacity: var(--paper-pager-opacity, 0.7);
+            }
+
+            .dot {
+                will-change: transform;
+                display: none;
+                position: absolute;
+                border-radius: 5px;
+                background-color: var(--paper-pager-color, white);
+                transition: all 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+            }
+
+            div {
+                transition: background-color 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
+            }
+        </style>
+        <iron-selector selected="[[selected]]">
+                <template is="dom-repeat" items="[[items]]">
+                    <div index="[[index]]" on-tap="_onTap"></div>
+                </template>
+        </iron-selector>
+        <div class="dot"></div>
+    </template>
+    <script>
+      class PaperPager extends Polymer.Element {
+
+        static get is() {
+          return 'paper-pager';
         }
-        
-      },
-      
-      attached: function() {
-        if (this.selected == 0) {
-          this._selectedChanged(this.selected, 2);
-        } else {
-          this._selectedChanged(this.selected, 0);
-        }
-      },
-      
-      _onTap: function(e) {
-        this.selected = e.target.index;
-      },
-      
-      _computeItems: function(count) {
-        this.items = new Array(count);
-      },
-      
-      _selectedChanged: function(selected, lastSelected) {
-        if(selected === undefined || lastSelected === undefined) return;
-        var dot = this.$$('.dot').style;
-        if (this.items.length && selected != lastSelected) {
-          dot.display = 'block';
-          var selectedN = selected + 1;
-          var lastSelectedN = lastSelected ? lastSelected + 1 : 1;
-          var selectedItem = this.$$('div:nth-child(' + selectedN + ')');
-          var lastSelectedItem = this.$$('div:nth-child(' + lastSelectedN + ')');
-          if(!selectedItem || !lastSelectedItem) return;
-          var lastSelRect = lastSelectedItem.getBoundingClientRect();
-          var selectedRect = selectedItem.getBoundingClientRect();
-          var elRect = this.getBoundingClientRect();
-          selectedRect = this._processRelativeRect(selectedRect, elRect);
-          lastSelRect = this._processRelativeRect(lastSelRect, elRect);
-          dot.top = lastSelRect.top + 'px';
-          dot.bottom = lastSelRect.bottom + 'px';
-          dot.left = lastSelRect.left + 'px';
-          dot.right = lastSelRect.right + 'px';
-          if (lastSelected > selected) {
-            dot.left = selectedRect.left + 'px';
-            dot.right = lastSelRect.right + 'px';
-          } else {
-            dot.left = lastSelRect.left + 'px';
-            dot.right = selectedRect.right + 'px';
+
+        static get properties() {
+          console.log('Getting properties');
+          return {
+            /**
+             * Number of items. If you set this leave items empty.
+             */
+            itemsCount: {
+              type: Number,
+              value: 3,
+              observer: '_computeItems'
+            },
+
+            /**
+             * Takes an array which length will be set as itemsCount. If you set this
+             * leave itemsCount empty.
+             */
+            items: {
+              type: Array
+            },
+
+            /**
+             * Currently selected item's index.
+             */
+            selected: {
+              type: Number,
+              notify: true,
+              reflectToAttribute: true,
+              value: 0,
+              observer: '_selectedChanged'
+            },
+
+            /**
+             * Quickly switch to dark theme.
+             */
+            dark: {
+              type: Boolean,
+              value: false,
+              observer: '_updateStyles'
+            },
+
+            /**
+             * Time in ms for the animation between dots
+             */
+            speed: {
+              type: Number,
+              value: 200,
+              observer: '_updateSpeed'
+            },
+
+            /**
+             * Time in ms for the transition to pause (when both dots connect)
+             */
+            pauseTime: {
+              type: Number,
+              value: 150
+            }
+
           }
-          setTimeout(function() {
+        }
+
+        connectedCallback() {
+          super.connectedCallback();
+
+          Polymer.RenderStatus.beforeNextRender(this, function() {
+            if(this.selected === undefined) return;
+            let dot = this.shadowRoot.querySelector('.dot').style;
+            dot.display = 'block';
+            let selectedRect = this._getElementRect(this.selected + 1);
+            dot.top = selectedRect.top + 'px';
+            dot.bottom = selectedRect.bottom + 'px';
             dot.left = selectedRect.left + 'px';
             dot.right = selectedRect.right + 'px';
-          }, 400);
+          });
         }
-      },
-      
-      _processRelativeRect: function(element, parent) {
-        var output = {
-          height: element.height,
-          width: element.width,
-          top: element.top - parent.top,
-          right: Math.abs(element.right - parent.right),
-          bottom: Math.abs(element.bottom - parent.bottom),
-          left: element.left - parent.left
-        };
-        
-        return output;
-      },
-      
-      _updateStyles: function() {
-        this.updateStyles();
+
+        _updateSpeed(speed) {
+          this.shadowRoot.querySelector('.dot').style['transition-duration'] = speed + 'ms';
+        }
+
+        _onTap(e) {
+          this.selected = e.target.index;
+        }
+
+        _computeItems(count) {
+          this.items = new Array(count);
+        }
+
+        _selectedChanged(selected, lastSelected) {
+          if(selected === undefined || lastSelected === undefined) return;
+          let dot = this.shadowRoot.querySelector('.dot').style;
+          if (this.items.length && selected != lastSelected) {
+            dot.display = 'block';
+            let selectedRect = this._getElementRect(selected + 1);
+            let lastSelRect = this._getElementRect(lastSelected ? lastSelected + 1 : 1);
+            if (!selectedRect || !lastSelRect) return;
+            dot.top = lastSelRect.top + 'px';
+            dot.bottom = lastSelRect.bottom + 'px';
+            dot.left = lastSelRect.left + 'px';
+            dot.right = lastSelRect.right + 'px';
+            if (lastSelected > selected) {
+              dot.left = selectedRect.left + 'px';
+              dot.right = lastSelRect.right + 'px';
+            } else {
+              dot.left = lastSelRect.left + 'px';
+              dot.right = selectedRect.right + 'px';
+            }
+            setTimeout(function() {
+              dot.left = selectedRect.left + 'px';
+              dot.right = selectedRect.right + 'px';
+            }, this.pauseTime);
+          }
+        }
+
+        _getElementRect(position) {
+          let selectedItem = this.shadowRoot.querySelector('div:nth-child(' + position + ')');
+          if (!selectedItem) return;
+          let selectedRect = selectedItem.getBoundingClientRect();
+          let parent = this.getBoundingClientRect();
+          return {
+            height: selectedRect.height,
+            width: selectedRect.width,
+            top: selectedRect.top - parent.top,
+            right: Math.abs(selectedRect.right - parent.right),
+            bottom: Math.abs(selectedRect.bottom - parent.bottom),
+            left: selectedRect.left - parent.left
+          };
+        }
+
+        _updateStyles() {
+          this.updateStyles();
+        }
+
       }
-    });
-  </script>
+      window.customElements.define(PaperPager.is, PaperPager);
+    </script>
+
 </dom-module>
