@@ -43,6 +43,7 @@ Import the element and then just use it as normal element.
 Made by me, inspired by Google's Material Design page indicator that can be seen in different places across Android N.
 Other resources:
 - http://stackoverflow.com/questions/26423335
+- https://github.com/PolymerElements/iron-flex-layout
 
 ## License
 
