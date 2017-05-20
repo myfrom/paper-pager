@@ -21,7 +21,7 @@
   "homepage": "https://github.com/myfrom/paper-pager",
   "dependencies": {
     "polymer": "Polymer/polymer#1.9 - 2",
-    "iron-selector": "PolymerElements/iron-selector#1 - 2"
+    "iron-selector": "PolymerElements/iron-selector#1 - 2",
     "iron-a11y-iron-keys-behavior": "PolymerElements/iron-a11y-iron-keys-behavior#1 - 2"
   },
   "devDependencies": {
