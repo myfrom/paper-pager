@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <link rel="import" href="../iron-selector/iron-selector.html">
+<link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 
 <!--
 `paper-pager` is a Material Design page indicator that adapts to provided variables
@@ -78,6 +79,10 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
   <script>
     Polymer({
       is: 'paper-pager',
+      
+      behaviors: [
+        Polymer.IronA11yKeysBehavior
+      ],
       
       properties: {
         /**
