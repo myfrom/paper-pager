@@ -20,6 +20,7 @@ Custom property | Description | Default
 ----------------|-------------|----------
 `--paper-pager-color` | Color of dots | `white`
 `--paper-pager-opacity` | Opacity of not selected dots | `0.7`
+`--paper-pager-dots-margin` | Margin of dots | `5px`
 If you quickly need to switch to dark theme you can use `dark` attribute.
 
 @demo demo/index.html 
@@ -45,7 +46,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       }
       
       iron-selector div {
-        margin: 5px;
+        margin: var(--paper-pager-dots-margin, 5px);
         border-radius: 5px;
         width: 10px;
         height: 10px;
