@@ -143,6 +143,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       },
       
       attached: function() {
+        this._draw = this.$.canvas.getContext('2d');
         if (this.selected == 0) {
           this._selectedChanged(this.selected, 2);
         } else {
@@ -158,10 +159,12 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         this.items = new Array(count);
       },
       
-      _changeSize: function()
+      _changeSize: function() {
+        let size
+      },
       
       _selectedChanged: function(selected, lastSelected) {
-        if(selected === undefined || lastSelected === undefined) return;
+        /*if(selected === undefined || lastSelected === undefined) return;
         var dot = this.$$('.dot').style;
         if (this.items.length && selected != lastSelected) {
           dot.display = 'block';
@@ -190,11 +193,11 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
             dot.left = selectedRect.left + 'px';
             dot.right = selectedRect.right + 'px';
           }, 400);
-        }
+        }*/
       },
       
       _processRelativeRect: function(element, parent) {
-        var output = {
+        /*var output = {
           height: element.height,
           width: element.width,
           top: element.top - parent.top,
@@ -203,7 +206,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
           left: element.left - parent.left
         };
         
-        return output;
+        return output;*/
       },
       
       _updateStyles: function() {
