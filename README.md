@@ -9,10 +9,9 @@ and sets `selected` as user clicks on it.
 ## Installation
 
 Make sure you have installed Bower, then simply run  
-`$ bower install --save Witus13/paper-pager`
+`$ bower install --save myfrom/paper-pager`
 
-This element is made for Hybrid mode so it should work with both Polymer 2.0 and 1.0 but it **hasn't been tested with 2.0 yet**
-
+This element is made in Hybrid mode so it will work with both Polymer 2.0 and 1.0
 ## Usage
 
 Import the element and then just use it as normal element.
