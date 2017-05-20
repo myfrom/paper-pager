@@ -122,6 +122,22 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
           type: Boolean,
           value: false,
           observer: '_updateStyles'
+        },
+        
+        /**
+         * Time in ms for the animation between dots
+         */
+        transitionDuration: {
+          type: Number,
+          value: 200
+        },
+        
+        /**
+         * Time in ms for the transition to pause (when two dots connect)
+         */
+        pauseDuration: {
+          type: Number,
+          value: 150
         }
         
       },
