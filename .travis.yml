@@ -11,7 +11,7 @@ addons:
     packages:
     - google-chrome-stable
 before_script:
-- npm install -g polymer-cli
+- npm install -g polymer-cli bower
 - polymer install --variants
 script:
 - polymer lint
