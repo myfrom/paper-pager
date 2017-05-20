@@ -55,18 +55,18 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         opacity: var(--paper-pager-opacity, 0.7);
       }
       
-      .dot {
+      /*.dot {
         will-change: transform;
         display: none;
         position: absolute;
         border-radius: 5px;
         background-color: var(--paper-pager-color, white);
         transition: all 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
+      }*/
       
-      div {
+      /*div {
         transition: background-color 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
-      }
+      }*/
     </style>
     <iron-selector selected="[[selected]]">
       <dom-repeat items="[[items]]">
@@ -75,7 +75,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         </template>
       </dom-repeat>
     </iron-selector>
-    <div class="dot"></div>
+    <canvas id="dot"></canvas>
   </template>
   <script>
     Polymer({
@@ -100,7 +100,8 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
          * leave itemsCount empty.
          */
         items: {
-          type: Array
+          type: Array,
+          observer: '_changeSize'
         },
         
         /**
@@ -140,6 +141,8 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       _computeItems: function(count) {
         this.items = new Array(count);
       },
+      
+      _changeSize: function()
       
       _selectedChanged: function(selected, lastSelected) {
         if(selected === undefined || lastSelected === undefined) return;
