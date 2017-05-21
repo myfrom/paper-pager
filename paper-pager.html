@@ -45,6 +45,11 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         display: inline-flex;
       }
       
+      iron-selector > div {
+        width: calc(var(--paper-pager-dots-margin, 5px) * 2 + 10px);
+        height: calc(var(--paper-pager-dots-margin, 5px) * 2 + 10px);
+      }
+      
       iron-selector .dot {
         margin: var(--paper-pager-dots-margin, 5px);
         border-radius: 5px;
@@ -53,6 +58,10 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         display: inline-block;
         background-color: var(--paper-pager-color, white);
         opacity: var(--paper-pager-opacity, 0.7);
+      }
+      
+      iron-selector .iron-selected .dot {
+        opacity: 1;
       }
       
       #canvas {
@@ -66,7 +75,9 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
     </style>
     <iron-selector selected="[[selected]]">
       <template is="dom-repeat" items="[[items]]">
-        <div index="[[index]]" class="dot" on-tap="_onTap"></div> 
+        <div index="[[index]]" on-tap="_onTap">
+          <div class="dot"></div>
+        </div>
       </template>
     </iron-selector>
     <canvas id="canvas"></canvas>
@@ -141,7 +152,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       },
       
       _onTap: function(e) {
-        this.selected = e.target.index;
+        this.selected = e.currentTarget.index;
       },
       
       _computeItems: function(count) {
@@ -221,7 +232,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
           }
         };
         const intervalReverse = setInterval(drawReverse, 17);
-        await this._wait(duration);
+        await this._wait(duration + 17);
         ctx.clearRect(0, 0, width, height);
         this.$.canvas.style.pointerEvents = 'none';
       },
