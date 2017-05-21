@@ -55,6 +55,14 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         opacity: var(--paper-pager-opacity, 0.7);
       }
       
+      #canvas {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+      }
+      
       /*.dot {
         will-change: transform;
         display: none;
@@ -69,13 +77,11 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       }*/
     </style>
     <iron-selector selected="[[selected]]">
-      <dom-repeat items="[[items]]">
-        <template is="dom-repeat" items="[[items]]">
-          <div index="[[index]]" on-tap="_onTap"></div> 
-        </template>
-      </dom-repeat>
+      <template is="dom-repeat" items="[[items]]">
+        <div index="[[index]]" on-tap="_onTap"></div> 
+      </template>
     </iron-selector>
-    <canvas id="dot"></canvas>
+    <canvas id="canvas"></canvas>
   </template>
   <script>
     Polymer({
@@ -144,11 +150,6 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       
       attached: function() {
         this._draw = this.$.canvas.getContext('2d');
-        if (this.selected == 0) {
-          this._selectedChanged(this.selected, 2);
-        } else {
-          this._selectedChanged(this.selected, 0);
-        }
       },
       
       _onTap: function(e) {
@@ -159,58 +160,88 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         this.items = new Array(count);
       },
       
-      _changeSize: function() {
-        let size
+      _changeSize: function(items) {
+        const marginPx = this.getComputedStyleValue('--paper-pager-dots-margin');
+        const margin = marginPx ? marginPx.match(/\d+/)[0] : 5;
+        this.$.canvas.height = (10 + 2 * margin);
+        this.$.canvas.width = items.length * (10 + 2 * margin);
       },
       
-      _selectedChanged: function(selected, lastSelected) {
-        /*if(selected === undefined || lastSelected === undefined) return;
-        var dot = this.$$('.dot').style;
-        if (this.items.length && selected != lastSelected) {
-          dot.display = 'block';
-          var selectedN = selected + 1;
-          var lastSelectedN = lastSelected ? lastSelected + 1 : 1;
-          var selectedItem = this.$$('div:nth-child(' + selectedN + ')');
-          var lastSelectedItem = this.$$('div:nth-child(' + lastSelectedN + ')');
-          if(!selectedItem || !lastSelectedItem) return;
-          var lastSelRect = lastSelectedItem.getBoundingClientRect();
-          var selectedRect = selectedItem.getBoundingClientRect();
-          var elRect = this.getBoundingClientRect();
-          selectedRect = this._processRelativeRect(selectedRect, elRect);
-          lastSelRect = this._processRelativeRect(lastSelRect, elRect);
-          dot.top = lastSelRect.top + 'px';
-          dot.bottom = lastSelRect.bottom + 'px';
-          dot.left = lastSelRect.left + 'px';
-          dot.right = lastSelRect.right + 'px';
-          if (lastSelected > selected) {
-            dot.left = selectedRect.left + 'px';
-            dot.right = lastSelRect.right + 'px';
-          } else {
-            dot.left = lastSelRect.left + 'px';
-            dot.right = selectedRect.right + 'px';
+      _selectedChanged: async function(selected, lastSelected) {
+        if (!this._draw) return;
+        const ctx = this._draw,
+              color = this.getComputedStyleValue('--paper-pager-color') || 'white',
+              marginPx = this.getComputedStyleValue('--paper-pager-dots-margin'),
+              margin = marginPx ? marginPx.match(/\d+/)[0] : 5,
+              y = margin + 5,
+              width = this.$.canvas.width,
+              height = this.$.canvas.height,
+              start = (margin * 2 + 10) * (lastSelected + 1) - 10,
+              end = (margin * 2 + 10) * (selected + 1) - 10,
+              frameDistance = (start - end) / 17,
+              dur = this.transitionDuration / 17;
+        let i = 0,
+            pos = start;
+        ctx.clearRect(0, 0, width, height);
+        const draw = () => {
+          i++;
+          pos -= frameDistance;
+          ctx.clearRect(0, 0, width, height);
+          ctx.moveTo(start, y);
+          ctx.lineTo(pos, y);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = color;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+          if (i >= dur) {
+            clearInterval(interval);
+            ctx.clearRect(0, 0, width, height);
+            ctx.moveTo(start, y);
+            ctx.lineTo(end, y);
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = color;
+            ctx.lineCap = 'round';
+            ctx.stroke();
           }
-          setTimeout(function() {
-            dot.left = selectedRect.left + 'px';
-            dot.right = selectedRect.right + 'px';
-          }, 400);
-        }*/
-      },
-      
-      _processRelativeRect: function(element, parent) {
-        /*var output = {
-          height: element.height,
-          width: element.width,
-          top: element.top - parent.top,
-          right: Math.abs(element.right - parent.right),
-          bottom: Math.abs(element.bottom - parent.bottom),
-          left: element.left - parent.left
         };
-        
-        return output;*/
+        ctx.clearRect(0, 0, width, height);
+        const interval = setInterval(draw, 17);
+        await this._wait(this.pauseDuration + this.transitionDuration);
+        pos = start;
+        i = 0;
+        const drawReverse = () => {
+          i++;
+          pos -= frameDistance;
+          ctx.clearRect(0, 0, width, height);
+          ctx.moveTo(end, y);
+          ctx.lineTo(pos, y);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = color;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+          if (i >= dur) {
+            clearInterval(intervalReverse);
+            ctx.clearRect(0, 0, width, height);
+            ctx.moveTo(end, y);
+            ctx.lineTo(end, y);
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = color;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
+        };
+        ctx.clearRect(0, 0, width, height);
+        const intervalReverse = setInterval(drawReverse, 17);
+        await this._wait(this.transitionDuration);
+        ctx.clearRect(0, 0, width, height);
       },
       
       _updateStyles: function() {
         this.updateStyles();
+      },
+      
+      _wait(ms) {
+        return new Promise(r => setTimeout(r, ms));
       }
     });
   </script>
