@@ -8,6 +8,8 @@
 and sets `selected` as user clicks on it. It doesn't require any variable but
 it's higly recommended to provide `itemsCount` (as number) or `items` (as array).
 
+**This element needs to be transpiled to run in older (ES6 incompatible) browsers**
+
 Example:
 
     <paper-pager items-count="3" selected="{{selected}}"></paper-pager>
@@ -32,6 +34,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       :host {
         margin: 5px;
         position: relative;
+        display: inline-block;
       }
       
       :host([dark]) {
@@ -48,6 +51,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       iron-selector > div {
         width: calc(var(--paper-pager-dots-margin, 5px) * 2 + 10px);
         height: calc(var(--paper-pager-dots-margin, 5px) * 2 + 10px);
+        position: relative;
       }
       
       iron-selector .dot {
@@ -60,8 +64,24 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         opacity: var(--paper-pager-opacity, 0.7);
       }
       
-      iron-selector .iron-selected .dot {
+      iron-selector .iron-selected.ready .dot {
         opacity: 1;
+      }
+      
+      :host([accessible]) iron-selector > div:focus::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 50%;
+        opacity: 0.2;
+        background-color: var(--paper-pager-color, white);
+      }
+      
+      iron-selector > div:focus {
+        outline: none;
       }
       
       #canvas {
@@ -143,12 +163,33 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         pauseDuration: {
           type: Number,
           value: 200
+        },
+        
+        /**
+         * Turn on accessibility features (keyboard navigation, focus ring);
+         */
+        accessible: {
+          type: Boolean,
+          reflectToAttribute: true,
+          observer: '_setupAccessibility'
         }
         
       },
       
+      /*keyBindings: {
+        'down' : '_previous',
+        'up'  : '_next',
+        'left' : '_previous',
+        'right'  : '_next',
+        'space' : '_enterSelected',
+        'enter' : '_enterSelected',
+      },*/
+      
       attached: function() {
         this._draw = this.$.canvas.getContext('2d');
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          this.$$('.iron-selected').classList.add('ready');
+        });
       },
       
       _onTap: function(e) {
@@ -168,6 +209,11 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       
       _selectedChanged: async function(selected, lastSelected) {
         if (!this._draw) return;
+        if (this.accessible) {
+          this._tabindex = this._tabindex.bind(this);
+          setTimeout(this._tabindex);
+        }
+        if (this.$$('.ready')) this.$$('.ready').classList.remove('ready');
         this.$.canvas.style.pointerEvents = 'auto';
         const ctx = this._draw,
               color = this.getComputedStyleValue('--paper-pager-color') || 'white',
@@ -235,13 +281,80 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         await this._wait(duration + 17);
         ctx.clearRect(0, 0, width, height);
         this.$.canvas.style.pointerEvents = 'none';
+        this.$$('.iron-selected').classList.add('ready');
       },
       
       _updateStyles: function() {
         this.updateStyles();
       },
       
-      _wait(ms) {
+      _next: function(e) {
+        e.detail.keyboardEvent.preventDefault();
+        if (this._focused === this.items.length - 1) {
+          this._focused = 0;
+        } else {
+          this._focused++;
+        }
+        Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+          if (item.index === this._focused) {
+            item.tabIndex = 0;
+            item.focus();
+          } else {
+            item.tabIndex = -1;
+          }
+        });
+      },
+      
+      _previous: function(e) {
+        e.detail.keyboardEvent.preventDefault();
+        if (this._focused === 0) {
+          this._focused = this.items.length - 1;
+        } else {
+          this._focused--;
+        }
+        Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+          if (item.index === this._focused) {
+            item.tabIndex = 0;
+            item.focus();
+          } else {
+            item.tabIndex = -1;
+          }
+        });
+      },
+      
+      _enterSelected: function(e) {
+        e.detail.keyboardEvent.preventDefault();
+        this.selected = this._focused;
+      },
+      
+      _tabindex: function() {
+        this._focused = this.selected;
+        Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+          item.tabIndex = item.index === this.selected ? 0 : -1;
+        });
+      },
+      
+      _setupAccessibility: function(a11y) {
+        if (a11y) {
+          Polymer.RenderStatus.afterNextRender(this, () => {
+            this.$$('iron-selector .iron-selected').tabIndex = 0;
+          });
+          this._focused = this.selected;
+          this.addOwnKeyBinding('down', '_previous');
+          this.addOwnKeyBinding('up', '_next');
+          this.addOwnKeyBinding('left', '_previous');
+          this.addOwnKeyBinding('right', '_next');
+          this.addOwnKeyBinding('space', '_enterSelected');
+          this.addOwnKeyBinding('enter', '_enterSelected');
+        } else {
+          Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+            item.tabIndex = -1;
+          });
+          this.removeOwnKeyBindings();
+        }
+      },
+      
+      _wait: function(ms) {
         return new Promise(r => setTimeout(r, ms));
       }
     });
