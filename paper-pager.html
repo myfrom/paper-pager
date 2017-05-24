@@ -8,6 +8,8 @@
 and sets `selected` as user clicks on it. It doesn't require any variable but
 it's higly recommended to provide `itemsCount` (as number) or `items` (as array).
 
+**This element needs to be transpiled to run in older (ES6 incompatible) browsers**
+
 Example:
 
     <paper-pager items-count="3" selected="{{selected}}"></paper-pager>
@@ -20,6 +22,7 @@ Custom property | Description | Default
 ----------------|-------------|----------
 `--paper-pager-color` | Color of dots | `white`
 `--paper-pager-opacity` | Opacity of not selected dots | `0.7`
+`--paper-pager-dots-margin` | Margin of dots | `5px`
 If you quickly need to switch to dark theme you can use `dark` attribute.
 
 @demo demo/index.html 
@@ -31,6 +34,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       :host {
         margin: 5px;
         position: relative;
+        display: inline-block;
       }
       
       :host([dark]) {
@@ -44,8 +48,14 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         display: inline-flex;
       }
       
-      iron-selector div {
-        margin: 5px;
+      iron-selector > div {
+        width: calc(var(--paper-pager-dots-margin, 5px) * 2 + 10px);
+        height: calc(var(--paper-pager-dots-margin, 5px) * 2 + 10px);
+        position: relative;
+      }
+      
+      iron-selector .dot {
+        margin: var(--paper-pager-dots-margin, 5px);
         border-radius: 5px;
         width: 10px;
         height: 10px;
@@ -54,27 +64,43 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         opacity: var(--paper-pager-opacity, 0.7);
       }
       
-      .dot {
-        will-change: transform;
-        display: none;
-        position: absolute;
-        border-radius: 5px;
-        background-color: var(--paper-pager-color, white);
-        transition: all 300ms cubic-bezier(0.4, 0.0, 0.2, 1);
+      iron-selector .iron-selected.ready .dot {
+        opacity: 1;
       }
       
-      div {
-        transition: background-color 150ms cubic-bezier(0.4, 0.0, 0.2, 1);
+      :host([accessible]) iron-selector > div:focus::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 50%;
+        opacity: 0.2;
+        background-color: var(--paper-pager-color, white);
+      }
+      
+      iron-selector > div:focus {
+        outline: none;
+      }
+      
+      #canvas {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        pointer-events: none;
       }
     </style>
     <iron-selector selected="[[selected]]">
-      <dom-repeat items="[[items]]">
-        <template is="dom-repeat" items="[[items]]">
-          <div index="[[index]]" on-tap="_onTap"></div> 
-        </template>
-      </dom-repeat>
+      <template is="dom-repeat" items="[[items]]">
+        <div index="[[index]]" on-tap="_onTap">
+          <div class="dot"></div>
+        </div>
+      </template>
     </iron-selector>
-    <div class="dot"></div>
+    <canvas id="canvas"></canvas>
   </template>
   <script>
     Polymer({
@@ -99,7 +125,8 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
          * leave itemsCount empty.
          */
         items: {
-          type: Array
+          type: Array,
+          observer: '_changeSize'
         },
         
         /**
@@ -120,74 +147,215 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
           type: Boolean,
           value: false,
           observer: '_updateStyles'
+        },
+        
+        /**
+         * Time in ms for the animation between two dots
+         */
+        transitionDuration: {
+          type: Number,
+          value: 200
+        },
+        
+        /**
+         * Time in ms for the transition to pause (when two dots connect)
+         */
+        pauseDuration: {
+          type: Number,
+          value: 200
+        },
+        
+        /**
+         * Turn on accessibility features (keyboard navigation, focus ring);
+         */
+        accessible: {
+          type: Boolean,
+          reflectToAttribute: true,
+          observer: '_setupAccessibility'
         }
         
       },
       
+      /*keyBindings: {
+        'down' : '_previous',
+        'up'  : '_next',
+        'left' : '_previous',
+        'right'  : '_next',
+        'space' : '_enterSelected',
+        'enter' : '_enterSelected',
+      },*/
+      
       attached: function() {
-        if (this.selected == 0) {
-          this._selectedChanged(this.selected, 2);
-        } else {
-          this._selectedChanged(this.selected, 0);
-        }
+        this._draw = this.$.canvas.getContext('2d');
+        Polymer.RenderStatus.afterNextRender(this, () => {
+          this.$$('.iron-selected').classList.add('ready');
+        });
       },
       
       _onTap: function(e) {
-        this.selected = e.target.index;
+        this.selected = e.currentTarget.index;
       },
       
       _computeItems: function(count) {
         this.items = new Array(count);
       },
       
-      _selectedChanged: function(selected, lastSelected) {
-        if(selected === undefined || lastSelected === undefined) return;
-        var dot = this.$$('.dot').style;
-        if (this.items.length && selected != lastSelected) {
-          dot.display = 'block';
-          var selectedN = selected + 1;
-          var lastSelectedN = lastSelected ? lastSelected + 1 : 1;
-          var selectedItem = this.$$('div:nth-child(' + selectedN + ')');
-          var lastSelectedItem = this.$$('div:nth-child(' + lastSelectedN + ')');
-          if(!selectedItem || !lastSelectedItem) return;
-          var lastSelRect = lastSelectedItem.getBoundingClientRect();
-          var selectedRect = selectedItem.getBoundingClientRect();
-          var elRect = this.getBoundingClientRect();
-          selectedRect = this._processRelativeRect(selectedRect, elRect);
-          lastSelRect = this._processRelativeRect(lastSelRect, elRect);
-          dot.top = lastSelRect.top + 'px';
-          dot.bottom = lastSelRect.bottom + 'px';
-          dot.left = lastSelRect.left + 'px';
-          dot.right = lastSelRect.right + 'px';
-          if (lastSelected > selected) {
-            dot.left = selectedRect.left + 'px';
-            dot.right = lastSelRect.right + 'px';
-          } else {
-            dot.left = lastSelRect.left + 'px';
-            dot.right = selectedRect.right + 'px';
-          }
-          setTimeout(function() {
-            dot.left = selectedRect.left + 'px';
-            dot.right = selectedRect.right + 'px';
-          }, 400);
-        }
+      _changeSize: function(items) {
+        const marginPx = this.getComputedStyleValue('--paper-pager-dots-margin');
+        const margin = marginPx ? marginPx.match(/\d+/)[0] : 5;
+        this.$.canvas.height = (10 + 2 * margin);
+        this.$.canvas.width = items.length * (10 + 2 * margin);
       },
       
-      _processRelativeRect: function(element, parent) {
-        var output = {
-          height: element.height,
-          width: element.width,
-          top: element.top - parent.top,
-          right: Math.abs(element.right - parent.right),
-          bottom: Math.abs(element.bottom - parent.bottom),
-          left: element.left - parent.left
+      _selectedChanged: async function(selected, lastSelected) {
+        if (!this._draw) return;
+        if (this.accessible) {
+          this._tabindex = this._tabindex.bind(this);
+          setTimeout(this._tabindex);
+        }
+        if (this.$$('.ready')) this.$$('.ready').classList.remove('ready');
+        this.$.canvas.style.pointerEvents = 'auto';
+        const ctx = this._draw,
+              color = this.getComputedStyleValue('--paper-pager-color') || 'white',
+              marginPx = this.getComputedStyleValue('--paper-pager-dots-margin'),
+              margin = marginPx ? marginPx.match(/\d+/)[0] : 5,
+              y = margin + 5,
+              width = this.$.canvas.width,
+              height = this.$.canvas.height,
+              start = (margin * 2 + 10) * (lastSelected + 1) - 10,
+              end = (margin * 2 + 10) * (selected + 1) - 10,
+              duration = this.transitionDuration,
+              cycles = duration / 17,
+              frameDistance = (start - end) / Math.round(cycles);
+        let i = 0,
+            pos = start;
+        const draw = () => {
+          i++;
+          pos -= frameDistance;
+          ctx.beginPath();
+          ctx.clearRect(0, 0, width, height);
+          ctx.moveTo(start, y);
+          ctx.lineTo(pos, y);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = color;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+          if (i >= cycles) {
+            clearInterval(interval);
+            ctx.clearRect(0, 0, width, height);
+            ctx.moveTo(start, y);
+            ctx.lineTo(end, y);
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = color;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
         };
-        
-        return output;
+        const interval = setInterval(draw, 17);
+        await this._wait(this.pauseDuration + duration);
+        pos = start;
+        i = 0;
+        const drawReverse = () => {
+          i++;
+          pos -= frameDistance;
+          ctx.beginPath();
+          ctx.clearRect(0, 0, width, height);
+          ctx.moveTo(end, y);
+          ctx.lineTo(pos, y);
+          ctx.lineWidth = 10;
+          ctx.strokeStyle = color;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+          if (i >= cycles) {
+            clearInterval(intervalReverse);
+            ctx.clearRect(0, 0, width, height);
+            ctx.moveTo(end, y);
+            ctx.lineTo(end, y);
+            ctx.lineWidth = 10;
+            ctx.strokeStyle = color;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+          }
+        };
+        const intervalReverse = setInterval(drawReverse, 17);
+        await this._wait(duration + 17);
+        ctx.clearRect(0, 0, width, height);
+        this.$.canvas.style.pointerEvents = 'none';
+        this.$$('.iron-selected').classList.add('ready');
       },
       
       _updateStyles: function() {
         this.updateStyles();
+      },
+      
+      _next: function(e) {
+        e.detail.keyboardEvent.preventDefault();
+        if (this._focused === this.items.length - 1) {
+          this._focused = 0;
+        } else {
+          this._focused++;
+        }
+        Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+          if (item.index === this._focused) {
+            item.tabIndex = 0;
+            item.focus();
+          } else {
+            item.tabIndex = -1;
+          }
+        });
+      },
+      
+      _previous: function(e) {
+        e.detail.keyboardEvent.preventDefault();
+        if (this._focused === 0) {
+          this._focused = this.items.length - 1;
+        } else {
+          this._focused--;
+        }
+        Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+          if (item.index === this._focused) {
+            item.tabIndex = 0;
+            item.focus();
+          } else {
+            item.tabIndex = -1;
+          }
+        });
+      },
+      
+      _enterSelected: function(e) {
+        e.detail.keyboardEvent.preventDefault();
+        this.selected = this._focused;
+      },
+      
+      _tabindex: function() {
+        this._focused = this.selected;
+        Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+          item.tabIndex = item.index === this.selected ? 0 : -1;
+        });
+      },
+      
+      _setupAccessibility: function(a11y) {
+        if (a11y) {
+          Polymer.RenderStatus.afterNextRender(this, () => {
+            this.$$('iron-selector .iron-selected').tabIndex = 0;
+          });
+          this._focused = this.selected;
+          this.addOwnKeyBinding('down', '_previous');
+          this.addOwnKeyBinding('up', '_next');
+          this.addOwnKeyBinding('left', '_previous');
+          this.addOwnKeyBinding('right', '_next');
+          this.addOwnKeyBinding('space', '_enterSelected');
+          this.addOwnKeyBinding('enter', '_enterSelected');
+        } else {
+          Polymer.dom(this.root).querySelectorAll('iron-selector > div').forEach(item => {
+            item.tabIndex = -1;
+          });
+          this.removeOwnKeyBindings();
+        }
+      },
+      
+      _wait: function(ms) {
+        return new Promise(r => setTimeout(r, ms));
       }
     });
   </script>
