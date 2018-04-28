@@ -4,15 +4,14 @@
 <link rel="import" href="../iron-a11y-keys-behavior/iron-a11y-keys-behavior.html">
 
 <!--
-`paper-pager` is a Material Design page indicator that adapts to provided variables
-and sets `selected` as user clicks on it. It doesn't require any variable but
-it's higly recommended to provide `itemsCount` (as number) or `items` (as array).
-
-**This element needs to be transpiled to run in older (ES6 incompatible) browsers**
+`paper-pager` is a Material Design page indicator. It shows currently selected page, provides a lightweight animation when switching pages and allows to pick specific page by clicking on the corresponding dot.
 
 Example:
+    <paper-pager items-count="4"></paper-pager>
 
-    <paper-pager items-count="3" selected="{{selected}}"></paper-pager>
+### Notice
+
+**If you want it to work on older browsers you must compile it from ES6 to ES5.**
 
 ### Styling
 
@@ -25,6 +24,8 @@ Custom property | Description | Default
 `--paper-pager-dots-margin` | Margin of dots | `5px`
 If you quickly need to switch to dark theme you can use `dark` attribute.
 
+@polymer
+@customElement
 @demo demo/index.html 
 -->
 
@@ -42,7 +43,6 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       }
       
       iron-selector {
-        /* From https://github.com/PolymerElements/iron-flex-layout */
         display: -ms-inline-flexbox;
         display: -webkit-inline-flex;
         display: inline-flex;
@@ -112,7 +112,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       
       properties: {
         /**
-         * Number of items. If you set this leave items empty.
+         * Number of items.
          */
         itemsCount: {
           type: Number,
@@ -121,8 +121,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         },
         
         /**
-         * Takes an array which length will be set as itemsCount. If you set this
-         * leave itemsCount empty.
+         * Takes an array which length will be set as `itemsCount`. If `itemsCount` is set this will overwrite it.
          */
         items: {
           type: Array,
@@ -141,7 +140,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         },
         
         /**
-         * Quickly switch to dark theme.
+         * If you set this to true, the element will use dark theme.
          */
         dark: {
           type: Boolean,
@@ -150,7 +149,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         },
         
         /**
-         * Time in ms for the animation between two dots
+         * Time (in ms) of the animation between two dots.
          */
         transitionDuration: {
           type: Number,
@@ -158,7 +157,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         },
         
         /**
-         * Time in ms for the transition to pause (when two dots connect)
+         * Time (in ms) of the pause in animation (when two dots are connected).
          */
         pauseDuration: {
           type: Number,
@@ -166,10 +165,11 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
         },
         
         /**
-         * Turn on accessibility features (keyboard navigation, focus ring);
+         * This will turn on accessibility features (keyboard navigation, focus ring);
          */
         accessible: {
           type: Boolean,
+          value: false,
           reflectToAttribute: true,
           observer: '_setupAccessibility'
         }
@@ -187,8 +187,11 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       
       attached: function() {
         this._draw = this.$.canvas.getContext('2d');
-        Polymer.RenderStatus.afterNextRender(this, () => {
-          this.$$('.iron-selected').classList.add('ready');
+        Polymer.RenderStatus.afterNextRender(this, function addClass() {
+          if (this.$$('.iron-selected'))
+            this.$$('.iron-selected').classList.add('ready');
+          else
+            Polymer.RenderStatus.afterNextRender(this, addClass);
         });
       },
       
@@ -197,14 +200,19 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       },
       
       _computeItems: function(count) {
-        this.items = new Array(count);
+        if (this._itemsCount !== count) {
+          this._itemsCount = count;
+          this.items = new Array(count);
+        }
       },
       
       _changeSize: function(items) {
+        this._itemsCount = items.length;
+        this.itemsCount = this._itemsCount;
         const marginPx = this.getComputedStyleValue('--paper-pager-dots-margin');
         const margin = marginPx ? marginPx.match(/\d+/)[0] : 5;
         this.$.canvas.height = (10 + 2 * margin);
-        this.$.canvas.width = items.length * (10 + 2 * margin);
+        this.$.canvas.width = this._itemsCount * (10 + 2 * margin);
       },
       
       _selectedChanged: async function(selected, lastSelected) {
@@ -290,7 +298,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       
       _next: function(e) {
         e.detail.keyboardEvent.preventDefault();
-        if (this._focused === this.items.length - 1) {
+        if (this._focused === this._itemsCount - 1) {
           this._focused = 0;
         } else {
           this._focused++;
@@ -308,7 +316,7 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       _previous: function(e) {
         e.detail.keyboardEvent.preventDefault();
         if (this._focused === 0) {
-          this._focused = this.items.length - 1;
+          this._focused = this._itemsCount - 1;
         } else {
           this._focused--;
         }
@@ -336,8 +344,11 @@ If you quickly need to switch to dark theme you can use `dark` attribute.
       
       _setupAccessibility: function(a11y) {
         if (a11y) {
-          Polymer.RenderStatus.afterNextRender(this, () => {
-            this.$$('iron-selector .iron-selected').tabIndex = 0;
+          Polymer.RenderStatus.afterNextRender(this, function addTabindex() {
+            if (this.$$('iron-selector .iron-selected'))
+              this.$$('iron-selector  .iron-selected').tabindex = 0;
+            else
+              Polymer.RenderStatus.afterNextRender(this, addTabindex);
           });
           this._focused = this.selected;
           this.addOwnKeyBinding('down', '_previous');
