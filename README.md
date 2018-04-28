@@ -31,6 +31,8 @@ Import the element and then just use it as normal element.
 <!-- `dark` attribute is only for visibility on white background -->
 ```
 
+**If you want it to work on older browsers you must compile it from ES6 to ES5.**
+
 The default item count is 3, you can set it either by specyfing `itemsCount` property (takes a number) or binding an Array of items to `items` property (this will basically set `itemsCount` to length of provided array).
 Property `selected` is the index of currently selected page, can be updated by clicking on dots representing each page.
 
