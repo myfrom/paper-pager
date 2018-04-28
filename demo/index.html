@@ -20,15 +20,57 @@
       <h3>Basic paper-pager demo</h3>
       <demo-snippet>
         <template>
+          <!-- dark attribute is there for visibility -->
           <paper-pager dark></paper-pager>
         </template>
       </demo-snippet>
     </div>
     <div class="vertical-section-container centered">
-      <h3>paper-pager with accessibility features</h3>
+      <h3>Accessibility features</h3>
       <demo-snippet>
         <template>
           <paper-pager dark accessible></paper-pager>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Custom values</h3>
+      <demo-snippet>
+        <template>
+          <div id="container">
+            <paper-pager items-count="5" selected="2"></paper-pager>
+          </div>
+          
+          <custom-style>
+            <style is="custom-style">
+              #container {
+                background-color: #252525;
+              }
+            </style>
+          </custom-style>
+        </template>
+      </demo-snippet>
+    </div>
+    <div class="vertical-section-container centered">
+      <h3>Same as above but with items instead of itemsCount</h3>
+      <demo-snippet>
+        <template>
+          <div id="container">
+            <paper-pager id="items-value" selected="2"></paper-pager>
+          </div>
+          
+          <script>
+            var pager = document.querySelector('#items-value');
+            pager.items = ['OMG', 'what', 'a', 'cool', 'demo'];
+          </script>
+          
+          <custom-style>
+            <style is="custom-style">
+              #container {
+                background-color: #252525;
+              }
+            </style>
+          </custom-style>
         </template>
       </demo-snippet>
     </div>
