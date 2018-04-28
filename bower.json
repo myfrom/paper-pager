@@ -3,14 +3,15 @@
   "version": "1.0.0",
   "description": "A light and accesible Material Design page indicator",
   "authors": [
-    "Witus13"
+    "Wiktor Olejniczak (myfrom.13th@gmail.com)"
   ],
   "keywords": [
     "web-components",
     "polymer-element",
     "polymer",
     "paper",
-    "material-design"
+    "material-design",
+    "pager"
   ],
   "private": true,
   "repository": {
@@ -50,6 +51,5 @@
   },
   "resolutions": {
     "webcomponentsjs": "^1.0.0"
-  },
-  "main": "paper-pager.html"
+  }
 }
