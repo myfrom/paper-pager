@@ -5,7 +5,7 @@
   "main": "paper-pager.js",
   "scripts": {
     "test": "polymer lint && polymer test",
-    "analyze": "polymer analyze paper-pager.js > analysis.json"
+    "analyze": "polymer analyze > analysis.json"
   },
   "repository": {
     "type": "git",
@@ -35,6 +35,7 @@
     "@polymer/iron-demo-helpers": "^3.0.2",
     "@polymer/iron-flex-layout": "^3.0.1",
     "@polymer/iron-test-helpers": "^3.0.1",
-    "@webcomponents/webcomponentsjs": "^2.1.3"
+    "@webcomponents/webcomponentsjs": "^2.1.3",
+    "wct-browser-legacy": "^1.0.1"
   }
 }

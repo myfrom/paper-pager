@@ -1,5 +1,6 @@
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg?style=flat-square)](https://www.webcomponents.org/element/myfrom/paper-pager)
 [![Build Status](https://img.shields.io/travis/rust-lang/rust.svg?style=flat-square)](https://travis-ci.org/myfrom/paper-pager)
+[![npm](https://img.shields.io/npm/v/@myfrom/paper-pager.svg?style=flat-square)](https://www.npmjs.com/package/@myfrom/paper-pager)
 
 # paper-pager
 
@@ -7,15 +8,19 @@
 
 ## Installation
 
-Make sure you have installed Bower, then simply run  
-`$ bower install --save myfrom/paper-pager`
+Make sure you have installed NPM, then simply run  
+`$ npm install --save @myfrom/paper-pager`
 
-This element is made in Hybrid mode so it will work with both Polymer 2.0 and 1.0
-Port for Polymer 3 is coming soon, stay tuned.
+Newer versions of this element work only with Polymer 3.  
+For backwards compatibility use versions 1.x
 
 ## Usage
 
-Import the element and then just use it as normal element.
+Import the element
+```js
+import '@myfrom/paper-pager';
+```
+ and then just use it as normal element.
 <!--
 ```
 <custom-element-demo>
@@ -44,10 +49,9 @@ If you found a bug or have an idea for a new feature, be sure to open an issue *
 
 ### Local development and testing
 
-For local development use **[Polymer CLI](https://www.polymer-project.org/2.0/docs/tools/polymer-cli)**. It's a very easy tool for working on Polymer apps and elements. Serve your element with `$ polymer serve` and **before you submit a PR** run
+For local development use **[Polymer CLI](https://www.polymer-project.org/3.0/docs/tools/polymer-cli)**. It's a very easy tool for working on Polymer apps and elements. Serve your element with `$ polymer serve` and **before you submit a PR** run
 ```bash
-$ polymer install --variants # This will run tests on both Polymer 1 and 2
-$ polymer lint --rules polymer-2-hybrid
+$ polymer lint
 $ polymer test
 ```
 
