@@ -1,0 +1,40 @@
+{
+  "name": "@myfrom/paper-pager",
+  "version": "2.0.0",
+  "description": "A light and accesible Material Design page indicator",
+  "main": "paper-pager.js",
+  "scripts": {
+    "test": "polymer lint && polymer test",
+    "analyze": "polymer analyze paper-pager.js > analysis.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/myfrom/paper-pager.git"
+  },
+  "keywords": [
+    "web-components",
+    "polymer-element",
+    "polymer",
+    "paper",
+    "material-design",
+    "pager"
+  ],
+  "author": "Wiktor Olejniczak <myfrom.13th@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/myfrom/paper-pager/issues"
+  },
+  "homepage": "https://www.webcomponents.org/element/myfrom/paper-pager",
+  "dependencies": {
+    "@polymer/iron-a11y-keys-behavior": "^3.0.1",
+    "@polymer/iron-selector": "^3.0.1",
+    "@polymer/polymer": "^3.0.5"
+  },
+  "devDependencies": {
+    "@polymer/iron-component-page": "^4.0.1",
+    "@polymer/iron-demo-helpers": "^3.0.2",
+    "@polymer/iron-flex-layout": "^3.0.1",
+    "@polymer/iron-test-helpers": "^3.0.1",
+    "@webcomponents/webcomponentsjs": "^2.1.3"
+  }
+}
