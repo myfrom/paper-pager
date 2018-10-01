@@ -1,4 +1,4 @@
-[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg?style=flat-square)](https://www.webcomponents.org/element/myfrom/paper-pager)
+[![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg?style=flat-square)](https://www.webcomponents.org/element/@myfrom/paper-pager)
 [![Build Status](https://img.shields.io/travis/rust-lang/rust.svg?style=flat-square)](https://travis-ci.org/myfrom/paper-pager)
 [![npm](https://img.shields.io/npm/v/@myfrom/paper-pager.svg?style=flat-square)](https://www.npmjs.com/package/@myfrom/paper-pager)
 
@@ -41,7 +41,7 @@ import '@myfrom/paper-pager';
 The default item count is 3, you can set it either by specyfing `itemsCount` property (takes a number) or binding an Array of items to `items` property (this will basically set `itemsCount` to length of provided array).
 Property `selected` is the index of currently selected page, can be updated by clicking on dots representing each page.
 
-**Check out [documentation](https://www.webcomponents.org/element/myfrom/paper-pager/elements/paper-pager) for more info**
+**Check out [documentation](https://www.webcomponents.org/element/@myfrom/paper-pager/elements/paper-pager) for more info**
 
 ## Contributing
 
