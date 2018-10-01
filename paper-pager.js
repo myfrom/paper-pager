@@ -1,7 +1,7 @@
 import { Polymer } from '@polymer/polymer/polymer-legacy.js';
 import { html } from '@polymer/polymer/lib/utils/html-tag.js';
 import { afterNextRender } from '@polymer/polymer/lib/utils/render-status.js';
-import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js'
+import { dom } from '@polymer/polymer/lib/legacy/polymer.dom.js';
 
 import '@polymer/iron-selector/iron-selector.js';
 
